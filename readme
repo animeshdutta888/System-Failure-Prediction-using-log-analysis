@@ -1,0 +1,43 @@
+The csv file is in data folder. It has data for 16 CPUs of machine 1. The CPU,RAM, disk utilization and other facors for 5 days
+are mentioned. 
+The three jupyter notebooks need to be executed in order viz final_df_1,mac_1,mac_1predict. 
+
+final_df_1.ipynb file is for the following :
+The parameters I have taken into account before applying PCA are: 
+1) CPU utilization(CPU001 to CPU016)
+We can just add the Usr%, Sys% and Wait% to get the total CPU utilization for each CPU.(ignoring the idle%) We can then take the log for each CPU and add all such values to get a total value for 16 CPUs. Taking the log will help us to normalize the score.
+2) RAM utilization(MEM)
+	We can keep 2 parameters in this:
+	Swap space unused : swaptotal- swapfree+ Inactive
+	RAM unused = memtotal-(memfree+buffers+cached)
+ 	Combine these two parameters by adding them and thus getting a consolidated value for each time stamp.
+3) Hard disk utilization(DISKBSIZE,DISKBUSY(%),DISKREAD,DISKWRITE,DISKXFER)
+i)We calculate the disk size in use by multiplying the % of DISKBUSY WITH DISKBSIZE for each drive and then add all to get for 
+a particular timestamp.
+ii)We also add the DISKREAD,WRITE for all hard disks and divide it with the sum of all DISKTRANSFER at a particular timestamp.
+Divide DISKSIZE(i) By the computed result in step(ii) 
+4) NetPackets
+The ratio of lo-read-KB/s and lo-write-KB/s should be one i.e values of both the terms must be equal. For eth1-read-KB/s and
+eth1-write-KB/s we will add the values and the outlier value will   
+make a difference
+PCA is then applied to reduce these 4 value to a single value for each timestamp.
+
+	
+mac_1.ipynb notebook is used to train a LSTM model. We use univariate time series forecasting as we have already reduced it to 
+a single feature using PCA stated above.
+The brief approach used:
+1. A moving forward window of size 50, which means we will use the first 50 data points as out input X to predict y1 — 51st data 
+point. Next, we will use the window between 1 to 51 data points as input X to predict y2 i.e., the 52nd data point and so on.
+Here is the plot of first 50 data points 
+2. use a two layered LSTM architecture coupled with a dense output layer to make a prediction.
+3. We will look at couple of approaches to predict the output — a) Forecasting step by step on the test data set
+b)Feed the previous prediction back into the input window by moving it one step forward and then predict at the current time step.
+Preparing the 3D input vector for the LSTM.The input vector for LSTM is 3D array: (num_samples, num_time_steps, num_features)
+Save the weights for the model trained (can be found in weight folder), plot the predicted values to visualize the trend in data.
+
+mac_1predict.ipynb notebook predicts the reduced parameterized value for the next 20 timestamps after taking a particular
+timestamp as input.
+
+Just we need to divide the reduced values from the training set into 2 clusters , Normal case and System Failure generation. 
+We can then use K-means clustering to cluster the predicted values from mac1_predict.ipynb to either Normal or System Failure 
+generation which is our main target.

@@ -38,6 +38,5 @@ Save the weights for the model trained (can be found in weight folder), plot the
 mac_1predict.ipynb notebook predicts the reduced parameterized value for the next 20 timestamps after taking a particular
 timestamp as input.
 
-Just we need to divide the reduced values from the training set into 2 clusters , Normal case and System Failure generation. 
-We can then use K-means clustering to cluster the predicted values from mac1_predict.ipynb to either Normal or System Failure 
-generation which is our main target.
+Just we need to divide the reduced values from the training set into 2 classes , Normal case and System Failure generation. 
+We can use SVM to classify the value to either Normal or Failure class.
